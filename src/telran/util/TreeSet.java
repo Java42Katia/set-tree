@@ -13,6 +13,7 @@ public class TreeSet<T> extends AbstractSet<T> {
 		 this.obj = obj;
 	 }
  }
+private static final int SPACE_LEVEL = 3;
  private Node<T> root;
  private Comparator<T> comp;
  public TreeSet(Comparator<T> comp) {
@@ -34,8 +35,9 @@ public TreeSet() {
 	 }
 	 return node.parent;
  }
- private class TreeSetIterator implements Iterator<T> {
+ private class TreeSetIterator extends AbstractIterator<T> {
 Node<T> current = root == null ? root : getMostLeftFrom(root);
+Node<T> previous = null;
 	@Override
 	public boolean hasNext() {
 		
@@ -43,15 +45,19 @@ Node<T> current = root == null ? root : getMostLeftFrom(root);
 	}
 
 	@Override
-	public T next() {
+	public T nextObject() {
 		T res = current.obj;
+		previous = current;
 		current = current.right != null ? getMostLeftFrom(current.right) :
 			getFirstParentGreater(current);
 		return res;
 	}
 	@Override 
-	public void remove() {
-		//TODO
+	public void removeObject() {
+		if (isJunction(previous)) {
+			current = previous;
+		}
+		removeNode(previous);
 	}
 	 
  }
@@ -110,49 +116,43 @@ Node<T> current = root == null ? root : getMostLeftFrom(root);
 	
 
 	private void removeNode(Node<T> removedNode) {
-		//TODO update the method by applying another algorithm
-		if (removedNode == root) {
+		if (isJunction(removedNode)) {
+			removeJunction(removedNode);
+		} else if (removedNode == root) {
 			removeRoot();
 		} else {
-			Node<T> parent = removedNode.parent;
-			Node<T> child = removedNode.right == null ? removedNode.left : removedNode.right;
-			
-			if (parent.right == removedNode) {
-				parent.right = child;
-				
-			} else {
-				parent.left = child;
-			}
-			if (child != null) {
-				child.parent = parent;
-			}
-			if (removedNode.right != null) {
-				Node<T> parentLeft = getMostLeftFrom(removedNode.right);
-				parentLeft.left = removedNode.left;
-				if(removedNode.left != null) {
-					removedNode.left.parent = parentLeft;
-				}
-				
-			}
+			removeNonJunction(removedNode);
 		}
 		size--;
+	}
+	private void removeNonJunction(Node<T> removedNode) {
+		Node<T> child = removedNode.right == null ? removedNode.left : removedNode.right;
+		Node<T> parent = removedNode.parent;
+		if (parent.right == removedNode) {
+			parent.right = child;
+		} else {
+			parent.left = child;
+		}
+		if (child != null) {
+			child.parent = parent;
+		}
 		
 	}
-	private void removeRoot() {
-		//TODO update the method by applying another algorithm (see slide 28)
-		Node<T> child = root.right == null ? root.left : root.right;
-		if (child != null) {
-			child.parent = null;
-		}
-		if (root.right != null) {
-			Node<T> parentLeft = getMostLeftFrom(root.right);
-			parentLeft.left = root.left;
-			if (root.left != null) {
-				root.left.parent = parentLeft;
-			}
-		}
-		root = child;
+	private void removeJunction(Node<T> removedNode) {
+		Node<T> substitute = getMostLeftFrom(removedNode.right);
+		removedNode.obj = substitute.obj;
+		removeNonJunction(substitute);
 		
+	}
+	private boolean isJunction(Node<T> node) {
+		
+		return node.left != null && node.right != null;
+	}
+	private void removeRoot() {
+		root = root.right == null ? root.left : root.right;
+		if (root != null) {
+			root.parent = null;
+		}
 	}
 	private Node<T> getNode(T pattern) {
 		Node<T> current = root;
@@ -172,5 +172,59 @@ Node<T> current = root == null ? root : getMostLeftFrom(root);
 		
 		return getParent(pattern) == null ;
 	}
+	public int width() {
+		
+		return width(root);
+	}
+	private int width(Node<T> rootTmp) {
+		if (rootTmp == null) {
+			return 0;
+		}
+		if (rootTmp.left == null && rootTmp.right == null) {
+			return 1;
+		}
+		return width(rootTmp.left) + width(rootTmp.right);
+	}
+	public int height() {
+		return height(root);
+		
+	}
+	private int height(Node<T> rootTmp) {
+		if (rootTmp == null) {
+			return 0;
+		}
+		int hl = height(rootTmp.left);
+		int hr = height(rootTmp.right);
+		
+		return 1 + Math.max(hl, hr);
+	}
+	public void displayTree() {
+		displayTree(0,root);
+	}
+	private void displayTree(int level, Node<T> rootTmp) {
+		if (rootTmp != null) {
+			displayTree(level + 1, rootTmp.right);
+			displayRoot(level, rootTmp);
+			displayTree(level + 1, rootTmp.left);
+		}
+		
+	}
+	private void displayRoot(int level, Node<T> rootTmp) {
+		System.out.print(" ".repeat(level * SPACE_LEVEL));
+		System.out.println(rootTmp.obj);
+		
+	}
+	public int sumOfMaxBranch() {
+		if (root.obj instanceof Integer) {
+			//TODO
+			//Perform casting to Integer for computing sum
+			return 0;
+		}
+		return -1;
+	}
+	public void displayTreeFileSystem() {
+		//TODO display tree in the form presented on the slide #39
+	}
+	
 
 }
