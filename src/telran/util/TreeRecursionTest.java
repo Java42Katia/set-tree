@@ -40,9 +40,17 @@ TreeSet<Integer> tree;
 	}
 
 	private TreeSet<Integer> getTreeForTest() {
-		// TODO create tree on the slide #38
-		return null;
+		TreeSet<Integer> tree = new TreeSet<>();
+		tree.add(4);
+		tree.add(6);
+		tree.add(7);
+		tree.add(5);
+		tree.add(-11);
+		tree.add(-21);
+		tree.displayTree();
+		return tree;
 	}
+
 	@Test
 	void displayTreeFileSystemTest() {
 		tree.displayTreeFileSystem();

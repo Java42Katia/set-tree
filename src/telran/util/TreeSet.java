@@ -218,12 +218,31 @@ Node<T> previous = null;
 		if (root.obj instanceof Integer) {
 			//TODO
 			//Perform casting to Integer for computing sum
-			return 0;
+			int sum =  this.root == null ? 0 : (int) this.root.obj;
+			int sumBranch = sumNextBranch(this.root);
+			return sum >= sumBranch ? sum : sumBranch;
 		}
 		return -1;
 	}
+	private int sumNextBranch(Node<T> node) {
+		Node tmp = node;
+		System.out.printf("tmp.left.obj = %d\n", tmp.left.obj);
+		System.out.printf("tmp.right.obj = %d\n", tmp.right.obj);
+		while (tmp.left != null && tmp.right != null) {
+			tmp = getMaxChild(tmp);
+			System.out.printf("%d\n", tmp.obj);
+		}
+		System.out.printf(" after while tmp.obj = %d", tmp.obj);
+		return 0;
+	}
+	private Node getMaxChild(Node<T> node) {
+		if (node.left == null) return node.right;
+		else if (node.right == null) return node.left;
+		return (int) node.left.obj >= (int) node.right.obj ? node.left : node.right;
+	}
 	public void displayTreeFileSystem() {
 		//TODO display tree in the form presented on the slide #39
+		
 	}
 	
 
